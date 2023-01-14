@@ -48,6 +48,23 @@ class FolderProvider {
       for (final String element in dirNames) {
         directories[getUserDirectory(element)!.path] = icons[element]!;
       }
+    } else if (Platform.isMacOS) {
+      final homeDirPath = Platform.environment['HOME'];
+      if (homeDirPath != null) {
+        directories[homeDirPath] = icons["HOME"]!;
+
+        final dir = Directory(homeDirPath);
+        final List<FileSystemEntity> entities = await dir.list().toList();
+        final Iterable<Directory> folders = entities.whereType<Directory>();
+        for (final element in folders) {
+          final curDirNameInUpperCase =
+              element.path.split('/').last.toUpperCase();
+          if (icons[curDirNameInUpperCase] != null) {
+            directories[element.path] =
+                icons[curDirNameInUpperCase.toUpperCase()]!;
+          }
+        }
+      }
     } else {
       throw Exception("Platform not supported");
     }

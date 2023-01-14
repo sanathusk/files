@@ -15,7 +15,9 @@ import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+final navigatorKey = GlobalKey<NavigatorState>();
 
 class FilesWorkspace extends StatefulWidget {
   final WorkspaceController controller;
@@ -423,11 +425,15 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     setState(() {});
   }
 
-  void _onEntityDoubleTap(EntityInfo entity) {
+  Future<void> _onEntityDoubleTap(EntityInfo entity) async {
     if (entity.isDirectory) {
       controller.changeCurrentDir(entity.path);
     } else {
-      launchUrlString(entity.path);
+      final fileUrl = "file:${Uri.encodeFull(entity.path)}";
+
+      if (await canLaunch(fileUrl)) {
+        launch(fileUrl);
+      }
     }
   }
 
